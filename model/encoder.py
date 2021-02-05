@@ -27,13 +27,13 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         out = self.encoder(x)
-        return out.view(-1, 1).squeeze(1)
+        return out
 
 
 if __name__ == '__main__':
     import torch
 
-    img = torch.rand(1, 1, 224, 224)
+    img = torch.rand(1, 1, 256, 256)
     model = Encoder()
     out = model(img)
     print(out.shape)
