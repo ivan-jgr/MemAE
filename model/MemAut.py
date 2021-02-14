@@ -73,53 +73,40 @@ def test():
 test()
 
 if __name__ == '__mains__':
-    import matplotlib.pyplot as plt
-    import torchvision
-    from torchvision import datasets
+    from dataloader import dataloader
+    from torchvision import transforms
     import torch.optim as optim
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    train_transforms = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+
+    dataloader = dataloader.get_healthy_data_loader(train_transforms)
     model = MemAut()
-    transform = torchvision.transforms.Normalize((0.1307,), (0.3081,))
-    dataset = datasets.MNIST('../files/', train=True, download=False, transform=transform)
-
-    idx = dataset.targets == 1
-    train_data = dataset.data[idx]
-
-    n = train_data.size(0)
+    model = nn.DataParallel(model)
+    model.to(device)
     criterion = nn.MSELoss(reduction='mean')
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    for i in range(10):
-        print("--"*20)
-        print("EPOCH: ", i)
+    optimizer = optim.SGD(model.parameters(), lr = 1e-3, momentum=0.9)
+
+    N = 100
+    for epoch in range(N):
+        print("Epoch {}/{}".format(epoch +1, N))
         print("--" * 20)
-        for sample in range(n):
+
+        for i, inputs, _ in enumerate(dataloader):
+            inputs = inputs.to(device)
             optimizer.zero_grad()
-            x = transform(train_data[sample].view(1, 28, 28).float()).view(1, 1, 28, 28)
-            x = F.interpolate(x, (24, 24))
-            out = model(x)
-            loss = criterion(x, out)
+
+            outputs = model(inputs)
+            loss = criterion(inputs, outputs)
+
             loss.backward()
             optimizer.step()
 
-            if sample % 100 == 0:
-                print("loss: ", loss)
+            if i % 100 == 0:
+                print("\tLoss: {}".format(loss.item()))
 
-        plt.imshow(out[0, 0, ...].detach().numpy(), cmap='gray')
-        plt.show()
-
-
-
-
-    """
-    x = torch.rand(2, 1, 256, 256)
-    model = MemAut()
-    out = model(x)
-
-    plt.imshow(x[0, 0, ...])
-    plt.show()
-    print(out.shape)
-    print(model.memory[0].shape)
-    plt.imshow(model.memory[0].view(64, -1).detach().numpy())
-    #plt.imshow(out[0, 0, ...].detach().numpy())
-    plt.show()
-    """
+    model.save(model, 'best_model.pth')
