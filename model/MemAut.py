@@ -41,8 +41,38 @@ class MemAut(nn.Module):
         rec_x = self.decoder(z_hat.view(b, 64, 3, 3))
         return rec_x
 
+def test():
+    import matplotlib.pyplot as plt
+    import torchvision
+    from torchvision import datasets
 
-if __name__ == '__main__':
+    model = MemAut()
+    model.load_state_dict(torch.load('../checkpoints.pth'))
+
+    transform = torchvision.transforms.Normalize((0.1307,), (0.3081,))
+    dataset = datasets.MNIST('../files/', train=True, download=False, transform=transform)
+
+    idx = dataset.targets == 7
+    train_data = dataset.data[idx]
+
+    for i in range(10):
+        x = transform(train_data[i].view(1, 28, 28).float()).view(1, 1, 28, 28)
+        x = F.interpolate(x, (24, 24))
+        out = model(x)
+
+        plt.subplot(1, 3, 1)
+        plt.imshow(x[0, 0, ...], cmap='gray_r')
+        plt.subplot(1, 3, 2)
+        plt.imshow(out[0, 0, ...].detach().numpy(), cmap='gray_r')
+        plt.subplot(1, 3, 3)
+        e = x - out
+        plt.imshow( e[0, 0, ...].detach().numpy(), cmap='jet' )
+        plt.colorbar()
+        plt.show()
+
+test()
+
+if __name__ == '__mains__':
     import matplotlib.pyplot as plt
     import torchvision
     from torchvision import datasets
