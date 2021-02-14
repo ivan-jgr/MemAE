@@ -13,9 +13,9 @@ class Encoder(nn.Module):
             self.conv_block(1, 16),
             self.conv_block(16, 32),
             self.conv_block(32, 64),
-            #self.conv_block(64, 128),
-            #self.conv_block(128, 256),
-            #self.conv_block(256, 256)
+            self.conv_block(64, 128),
+            self.conv_block(128, 256),
+            self.conv_block(256, 256)
         )
 
     def conv_block(self, inc, outc):

@@ -10,9 +10,9 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         self.decoder = nn.Sequential(
-            #self.upsampling_block(256, 256),
-            #self.upsampling_block(256, 128),
-            #self.upsampling_block(128, 64),
+            self.upsampling_block(256, 256),
+            self.upsampling_block(256, 128),
+            self.upsampling_block(128, 64),
             self.upsampling_block(64, 32),
             self.upsampling_block(32, 16),
             self.upsampling_block(16, 1, last=True)

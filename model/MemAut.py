@@ -13,7 +13,7 @@ class MemAut(nn.Module):
         self.decoder = Decoder()
 
         self.num_memories = 100
-        self.feature_size = 64 * 3 * 3
+        self.feature_size = 256 * 4 * 4
         init_mem = torch.zeros(self.num_memories, self.feature_size)
         nn.init.kaiming_normal_(init_mem)
 
@@ -38,7 +38,7 @@ class MemAut(nn.Module):
         mem_weight = mem_weight / mem_weight.norm(p=1, dim=1).unsqueeze(1).expand(b, self.num_memories)
         z_hat = torch.mm(mem_weight, self.memory)
 
-        rec_x = self.decoder(z_hat.view(b, 64, 3, 3))
+        rec_x = self.decoder(z_hat.view(b, 256, 4, 4))
         return rec_x
 
 def test():
@@ -70,9 +70,8 @@ def test():
         plt.colorbar()
         plt.show()
 
-test()
 
-if __name__ == '__mains__':
+if __name__ == '__main__':
     from dataloader import dataloader
     from torchvision import transforms
     import torch.optim as optim
