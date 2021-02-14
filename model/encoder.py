@@ -13,9 +13,9 @@ class Encoder(nn.Module):
             self.conv_block(1, 16),
             self.conv_block(16, 32),
             self.conv_block(32, 64),
-            self.conv_block(64, 128),
-            self.conv_block(128, 256),
-            self.conv_block(256, 256)
+            #self.conv_block(64, 128),
+            #self.conv_block(128, 256),
+            #self.conv_block(256, 256)
         )
 
     def conv_block(self, inc, outc):
@@ -26,6 +26,7 @@ class Encoder(nn.Module):
         )
 
     def forward(self, x):
+        # Feature size 256 x 4 x 4
         out = self.encoder(x)
         return out
 
@@ -33,7 +34,7 @@ class Encoder(nn.Module):
 if __name__ == '__main__':
     import torch
 
-    img = torch.rand(1, 1, 256, 256)
+    img = torch.rand(1, 1, 24, 24)
     model = Encoder()
     out = model(img)
     print(out.shape)
